@@ -1,0 +1,32 @@
+POST /webhook HTTP/1.1
+Accept:          */*
+Accept-Encoding: gzip, deflate, br
+Cache-Control:   no-cache
+Connection:      keep-alive
+Content-Length:  507
+Content-Type:    text/plain
+Host:            localhost:9000
+Postman-Token:   b95c301f-50db-4bfd-99f4-d247e53e3cef
+User-Agent:      PostmanRuntime/7.29.0
+
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "WHATSAPP_BUSINESS_ACCOUNT_ID",
+      "changes": [
+        {
+          "value": {
+              "messaging_product": "whatsapp",
+              "metadata": {
+                  "display_phone_number": "PHONE_NUMBER",
+                  "phone_number_id": "PHONE_NUMBER_ID"
+              },
+              # specific Webhooks payload            
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
