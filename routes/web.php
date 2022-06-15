@@ -19,4 +19,5 @@ $router->get('/', function () use ($router) {
     return redirect('https://atayebatgroup.com' , 301);
 });
 
-$router->post('/webhook', 'WhatsAppController@index');
+$router->get('/webhook', 'WhatsAppController@index');
+$router->post('/webhook', 'WhatsAppController@handleWebhook');
