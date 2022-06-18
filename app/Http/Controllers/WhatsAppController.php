@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class WhatsAppController extends Controller
 {
@@ -17,7 +18,17 @@ class WhatsAppController extends Controller
     }
 
     public function index(Request $request){
-        die("This is Atayebat Hypermarket Group.");
+        $mode = $request->hub_mode;
+        $token = $request->hub_verify_token;
+        $challnge = $request->hub_challenge;
+
+        if(isset($mode) && isset($token)){
+            if ($mode === "subscribe" && $token === env('VERIFY_TOKEN')) {
+                return response()->json($challnge , 200);
+            }else{
+                return response()->json(NULL , 403);
+            }
+        }
     }
 
     public function handleWebhook(Request $request){
