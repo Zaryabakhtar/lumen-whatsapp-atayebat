@@ -99,21 +99,6 @@ class WhatsAppController extends Controller
             $components = '"components" : []';
         }
         
-        $body = '{
-            "messaging_product": "whatsapp",
-            "to": "'.$to.'",
-            "type": "template",
-            "template": {
-                "name": "'.$template.'",
-                "language": {
-                    "code": "'.$lang.'"
-                },
-                '.$components.'
-            }
-        }';
-
-        die($body);
-        
         try {
             $curl = curl_init();
             curl_setopt_array($curl, array(
