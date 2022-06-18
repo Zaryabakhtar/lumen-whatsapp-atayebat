@@ -61,7 +61,7 @@ class WhatsAppController extends Controller
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
                 if($text == 'add me'){
-                    $respo = $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
+                    $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
                     $components = [
                         [
                             "type" => "header",
@@ -85,19 +85,35 @@ class WhatsAppController extends Controller
                         ]
 
                     ];
-                    $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , json_encode($components));
+                    $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , $components);
                     $this->markMessageRead($messageId);
                 }
             }  
-            if($message['type'] == 'media'){
-
-            }
         }
     }
 
-    private function sendWhatsAppTemplate($template , $to , $lang = 'en_US' , $params = []){
+    private function sendWhatsAppTemplate($template , $to , $lang = 'en_US' , $params = array()){
+        if(count($params) > 0){
+            $components = '"components" : ' . json_encode($params);
+        }else{
+            $components = '"components" : []';
+        }
+        
+        $body = '{
+            "messaging_product": "whatsapp",
+            "to": "'.$to.'",
+            "type": "template",
+            "template": {
+                "name": "'.$template.'",
+                "language": {
+                    "code": "'.$lang.'"
+                },
+                '.$components.'
+            }
+        }';
 
-        // dd($body);
+        die($body);
+        
         try {
             $curl = curl_init();
             curl_setopt_array($curl, array(
@@ -119,7 +135,7 @@ class WhatsAppController extends Controller
                             "code": "'.$lang.'"
                         },
                     },
-                    "components" : '. $params .'
+                    '.$components.'
                 }',
                 CURLOPT_HTTPHEADER => array(
                     'Authorization: Bearer ' . env('WHATSAPP_TOKEN'),
