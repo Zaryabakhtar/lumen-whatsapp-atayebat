@@ -60,7 +60,7 @@ class WhatsAppController extends Controller
                 $from = $message['from'];
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
-                if($text == 'add me'){
+                if($text == 'add me' || $text == 'اضافتي'){
                     $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
                     $components = [
                         [
@@ -87,6 +87,8 @@ class WhatsAppController extends Controller
                     ];
                     $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , $components);
                     $this->markMessageRead($messageId);
+                }else{
+                    $this->sendWhatsAppTemplate('send_selected_word' , $from , 'en_US');
                 }
             }  
         }
