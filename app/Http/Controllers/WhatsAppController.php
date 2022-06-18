@@ -49,11 +49,11 @@ class WhatsAppController extends Controller
         $messages = $mainData['messages'];
 
         // Pre Set Words
-        $wordsFromDb = TblReplyWords::get();
+        // $wordsFromDb = TblReplyWords::get();
 
-        foreach ($wordsFromDb as $word) {
-            array_push($preSetWordsList , strtolower($word->word_name));    
-        }
+        // foreach ($wordsFromDb as $word) {
+        //     array_push($preSetWordsList , strtolower($word->word_name));    
+        // }
 
         foreach ($messages as $message) {
             if($message['type'] == 'text'){
