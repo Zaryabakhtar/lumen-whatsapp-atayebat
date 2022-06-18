@@ -20,7 +20,7 @@ class WhatsAppController extends Controller
     public function index(Request $request){
         $mode = $request->hub_mode;
         $token = $request->hub_verify_token;
-        $challnge = $request->hub_challenge;
+        $challnge = (int)$request->hub_challenge;
 
         if(isset($mode) && isset($token)){
             if ($mode === "subscribe" && $token === env('VERIFY_TOKEN')) {
