@@ -2,8 +2,6 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
-use App\Http\Controllers\WhatsAppController;
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -15,9 +13,7 @@ use App\Http\Controllers\WhatsAppController;
 |
 */
 
-$router->get('/', function () use ($router) {
-    return redirect('https://atayebatgroup.com' , 301);
-});
+$router->get('/', 'HomeController@index');
 
 $router->get('/webhook', 'WhatsAppController@index');
 $router->post('/webhook', 'WhatsAppController@handleWebhook');

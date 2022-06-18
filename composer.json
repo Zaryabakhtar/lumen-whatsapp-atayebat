@@ -6,7 +6,9 @@
     "type": "project",
     "require": {
         "php": "^7.3|^8.0",
-        "laravel/lumen-framework": "7.0.*"
+        "guzzlehttp/guzzle": "^7.0",
+        "laravel/lumen-framework": "7.0.*",
+        "yajra/laravel-oci8": "7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

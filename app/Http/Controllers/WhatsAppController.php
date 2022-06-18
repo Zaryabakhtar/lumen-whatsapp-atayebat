@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Models\TblReplyWords;
+use Exception;
 
 class WhatsAppController extends Controller
 {
@@ -32,8 +34,138 @@ class WhatsAppController extends Controller
     }
 
     public function handleWebhook(Request $request){
-        $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-        fwrite($myfile, $request);
-        fclose($myfile);
+        
+        $preSetWordsList = [];
+
+        $object = $request->object;
+        $entry = $request->entry;
+        $responseId = $entry[0]['id'];
+        $changes = $entry[0]['changes'];
+        $mainData = $changes[0]['value'];
+
+        $metaData = $mainData['metadata'];
+        $displayPhoneNumber = $metaData['display_phone_number'];
+        $phoneNumberId = $metaData['phone_number_id'];
+        $messages = $mainData['messages'];
+
+        // Pre Set Words
+        $wordsFromDb = TblReplyWords::get();
+
+        foreach ($wordsFromDb as $word) {
+            array_push($preSetWordsList , strtolower($word->word_name));    
+        }
+
+        foreach ($messages as $message) {
+            if($message['type'] == 'text'){
+                $from = $message['from'];
+                $text = strtolower($message['text']['body']);
+                $messageId = $message['id'];
+                if($text == 'add me'){
+                    $respo = $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
+                    $components = [
+                        [
+                            "type" => "header",
+                            "parameters" => [
+                                [
+                                    "type"=> "image",
+                                    "image"=> [
+                                        "link"=> 'https://api.atayebatgroup.com/media/coupon.jpeg'
+                                    ]
+                                ]
+                            ]
+                        ],
+                        [
+                            "type" => "body",
+                            "parameters" => [
+                                [
+                                    "type"=> "text",
+                                    "text" => time()
+                                ]
+                            ]
+                        ]
+
+                    ];
+                    $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , json_encode($components));
+                    $this->markMessageRead($messageId);
+                }
+            }  
+            if($message['type'] == 'media'){
+
+            }
+        }
+    }
+
+    private function sendWhatsAppTemplate($template , $to , $lang = 'en_US' , $params = []){
+
+        // dd($body);
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://graph.facebook.com/v13.0/'. env('PHONE_NUMBER_ID') .'/messages',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS =>'{
+                    "messaging_product": "whatsapp",
+                    "to": "'.$to.'",
+                    "type": "template",
+                    "template": {
+                        "name": "'.$template.'",
+                        "language": {
+                            "code": "'.$lang.'"
+                        },
+                    },
+                    "components" : '. $params .'
+                }',
+                CURLOPT_HTTPHEADER => array(
+                    'Authorization: Bearer ' . env('WHATSAPP_TOKEN'),
+                    'Content-Type: application/json'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            return $response;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        
+    }
+
+    private function markMessageRead($id){
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://graph.facebook.com/v13.0/'. env('PHONE_NUMBER_ID') .'/messages',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS =>'{
+                "messaging_product": "whatsapp",
+                "status": "read",
+                "message_id": "'.$id.'"
+            }',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . env('WHATSAPP_TOKEN'),
+            ),
+            ));
+            
+            $response = curl_exec($curl);
+            
+            curl_close($curl);
+            return  $response;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
     }
 }
