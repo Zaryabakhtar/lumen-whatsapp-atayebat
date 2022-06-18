@@ -61,14 +61,13 @@ class WhatsAppController extends Controller
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
                 if($text == 'add me'){
-                    $first = $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
-                    print_r($first);
+                    $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
                     $components = [
                         [
                             "type" => "header",
                             "parameters" => [
                                 [
-                                    "type"=> "image",
+                                    "type"=> "IMAGE",
                                     "image"=> [
                                         "link"=> 'https://api.atayebatgroup.com/media/coupon.jpeg'
                                     ]
@@ -86,15 +85,14 @@ class WhatsAppController extends Controller
                         ]
 
                     ];
-                    $second = $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , $components);
-                    print_r($second);
+                    $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , $components);
                     $this->markMessageRead($messageId);
                 }
             }  
         }
     }
 
-    private function sendWhatsAppTemplate($template , $to , $lang = 'en_US' , $params = array()){
+    private function sendWhatsAppTemplate($template , $to , $lang = 'en_US' , $params = []){
         if(count($params) > 0){
             $components = '"components" : ' . json_encode($params);
         }else{
@@ -121,8 +119,8 @@ class WhatsAppController extends Controller
                         "language": {
                             "code": "'.$lang.'"
                         },
+                        '.$components.'
                     },
-                    '.$components.'
                 }',
                 CURLOPT_HTTPHEADER => array(
                     'Authorization: Bearer ' . env('WHATSAPP_TOKEN'),
