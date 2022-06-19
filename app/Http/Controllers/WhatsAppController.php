@@ -60,7 +60,7 @@ class WhatsAppController extends Controller
                 $from = $message['from'];
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
-                if($text == 'add me' || $text == 'اضافتي' || 'اضافتى'){
+                if($text == 'add me' || $text == 'اضافتي' || $text == 'اضافتى'){
                     $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
                     $components = [
                         [
