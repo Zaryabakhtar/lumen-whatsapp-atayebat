@@ -64,23 +64,23 @@ class WhatsAppController extends Controller
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
 
-                $customer = TblWAContacts::where('phone_no' , $from)->first();
-                if(!isset($customer)){
-                    DB::beginTransaction();
-                        $customer = new TblWAContacts;
-                        $customer->cnt_id = Utilities::uuid();
-                        $customer->grp_id = 29117122191833; // Customer Group
-                        $customer->cnt_name = $displayName;
-                        $customer->is_verified = 1;
-                        $customer->is_active = 1;
-                        $customer->phone_no = $from;
-                        $customer->country_id = 1;
-                        $customer->business_id = 1;
-                        $customer->company_id = 1;
-                        $customer->branch_id = 1;
-                        $customer->save();
-                    DB::commit();
-                }
+                // $customer = TblWAContacts::where('phone_no' , $from)->first();
+                // if(!isset($customer)){
+                //     DB::beginTransaction();
+                //         $customer = new TblWAContacts;
+                //         $customer->cnt_id = Utilities::uuid();
+                //         $customer->grp_id = 29117122191833; // Customer Group
+                //         $customer->cnt_name = $displayName;
+                //         $customer->is_verified = 1;
+                //         $customer->is_active = 1;
+                //         $customer->phone_no = $from;
+                //         $customer->country_id = 1;
+                //         $customer->business_id = 1;
+                //         $customer->company_id = 1;
+                //         $customer->branch_id = 1;
+                //         $customer->save();
+                //     DB::commit();
+                // }
 
                 if($text == 'add me' || $text == 'اضافتي' || $text == 'اضافتى'){
                     
