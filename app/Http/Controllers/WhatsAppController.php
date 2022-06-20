@@ -52,8 +52,8 @@ class WhatsAppController extends Controller
         $messages = $mainData['messages'];
 
         // Pre Set Words
-        $wordsFromDb = TblReplyWords::get();
-        dd($wordsFromDb);
+        // $wordsFromDb = TblReplyWords::get();
+
         // foreach ($wordsFromDb as $word) {
         //     array_push($preSetWordsList , strtolower($word->word_name));    
         // }
