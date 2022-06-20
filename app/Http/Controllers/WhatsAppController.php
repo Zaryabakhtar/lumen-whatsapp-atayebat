@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use GuzzleHttp\Client;
+use App\Library\Utilities;
 use Illuminate\Http\Request;
 use App\Models\TblReplyWords;
-use Exception;
+use App\Models\TblWAContacts;
+use Illuminate\Support\Facades\DB;
 
 class WhatsAppController extends Controller
 {
@@ -34,9 +37,8 @@ class WhatsAppController extends Controller
     }
 
     public function handleWebhook(Request $request){
-        
         $preSetWordsList = [];
-
+        // 29117122191833 Customer Contact Group
         $object = $request->object;
         $entry = $request->entry;
         $responseId = $entry[0]['id'];
@@ -45,6 +47,7 @@ class WhatsAppController extends Controller
 
         $metaData = $mainData['metadata'];
         $displayPhoneNumber = $metaData['display_phone_number'];
+        $displayName = $mainData['contacts'][0]['profile']['name'];
         $phoneNumberId = $metaData['phone_number_id'];
         $messages = $mainData['messages'];
 
@@ -60,7 +63,27 @@ class WhatsAppController extends Controller
                 $from = $message['from'];
                 $text = strtolower($message['text']['body']);
                 $messageId = $message['id'];
+
+                $customer = TblWAContacts::where('phone_no' , $from)->first();
+                if(!isset($customer)){
+                    DB::beginTransaction();
+                        $customer = new TblWAContacts;
+                        $customer->cnt_id = Utilities::uuid();
+                        $customer->grp_id = 29117122191833; // Customer Group
+                        $customer->cnt_name = $displayName;
+                        $customer->is_verified = 1;
+                        $customer->is_active = 1;
+                        $customer->phone_no = $from;
+                        $customer->country_id = 1;
+                        $customer->business_id = 1;
+                        $customer->company_id = 1;
+                        $customer->branch_id = 1;
+                        $customer->save();
+                    DB::commit();
+                }
+
                 if($text == 'add me' || $text == 'اضافتي' || $text == 'اضافتى'){
+                    
                     $this->sendWhatsAppTemplate('add_me' , $from , 'en_US');
                     $components = [
                         [
@@ -87,9 +110,14 @@ class WhatsAppController extends Controller
                     ];
                     $this->sendWhatsAppTemplate('promotion_on_first_add' , $from , 'en' , $components);
                     $this->markMessageRead($messageId);
-                }else{
-                    $this->sendWhatsAppTemplate('send_selected_word' , $from , 'en_US');
+                    return true;
                 }
+                if($text == 'location'){
+
+                    return true;
+                }
+                $this->sendWhatsAppTemplate('send_selected_word' , $from , 'en_US');
+                return false;
             }  
         }
     }
@@ -164,7 +192,6 @@ class WhatsAppController extends Controller
             ));
             
             $response = curl_exec($curl);
-            
             curl_close($curl);
             return  $response;
         } catch (Exception $e) {
